@@ -10,6 +10,7 @@ import com.kucp1127.KidsLearningApp.Configuration.Model.Child;
 import com.kucp1127.KidsLearningApp.Configuration.Model.ParentClass;
 import com.kucp1127.KidsLearningApp.Configuration.Model.Parents;
 import com.kucp1127.KidsLearningApp.Configuration.Model.User;
+import com.kucp1127.KidsLearningApp.LeaderBoard.Service.LeaderboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,8 @@ public class AuthController {
     @Autowired
     private ChildService childService;
 
+    @Autowired
+    private LeaderboardService leaderboardService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -98,6 +101,8 @@ public class AuthController {
 
             childProfileService.postChildProfile(childProfile);
 
+            leaderboardService.createEmptyLeaderBoard(ele.getUsername());
+
             userNames.add(ele.getUsername());
         }
         parents.setChildren(userNames);
@@ -105,11 +110,18 @@ public class AuthController {
 
     }
 
+    @GetMapping("/find/{username}")
+    public Boolean findUsername(@PathVariable String username){
+        Optional<Parents> parents = parentService.getParentByUserName(username);
+        Optional<Child> child = childService.getChildByUserName(username);
+
+        return parents.isPresent() || child.isPresent();
+    }
+
     @PostMapping("/login")
     public String login(@RequestBody User user){
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword()));
-
         if(authentication.isAuthenticated()) {
             Optional<Parents> parent = parentService.getParentByUserName(user.getUsername());
             if(parent.isPresent()){

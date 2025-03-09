@@ -24,8 +24,7 @@ public class GameRecord {
     @JoinColumn(name = "child_username")
     @JsonBackReference
     private ChildProfile childProfile;
-
-
+    private String learning;
     @ElementCollection
     @CollectionTable(name = "game_score_history", joinColumns = @JoinColumn(name = "game_record_games_url"))
     private List<ScoreEntry> scoreHistory = new ArrayList<>();
